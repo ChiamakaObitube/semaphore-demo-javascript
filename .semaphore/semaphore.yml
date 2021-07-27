@@ -171,28 +171,28 @@ blocks:
           - node --version
           - npm --version
       jobs:
-      - name: Client Lint
-        commands:
-          - cd src/client
-      #  At this point we can assume 100% cache hit rate of node modules:
-          - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-      # Run task as defined in package.json:
-          - npm run lint
-      - name: Server Lint
-        commands:
-          - cd src/server
-          - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-          - npm run lint
-      - name: Client Tests
-        commands:
-          - cd src/client
-          - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-          - npm test
-      - name: Server Tests
-        commands:
-          - cd src/server
-          - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-          - npm test
+        - name: Client Lint
+          commands:
+            - cd src/client
+        #  At this point we can assume 100% cache hit rate of node modules:
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+        # Run task as defined in package.json:
+            - npm run lint
+        - name: Server Lint
+          commands:
+            - cd src/server
+            - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+            - npm run lint
+        - name: Client Tests
+          commands:
+            - cd src/client
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+            - npm test
+        - name: Server Tests
+          commands:
+            - cd src/server
+            - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+            - npm test
 # If all tests pass, we move on to build a Docker image.
 # This is a job for a separate pipeline which we link with a promotion.
 #
