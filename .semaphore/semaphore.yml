@@ -69,7 +69,95 @@ blocks:
             - npm install
             - cache store server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json) node_modules
 
-  - name: Lint
+  # - name: Lint
+  #   task:
+  #     env_vars:
+  #       - name: NODE_ENV
+  #         value: test
+  #       - name: CI
+  #         value: 'true'
+  #     prologue:
+  #       commands:
+  #         - checkout
+  #         - nvm use
+  #         - node --version
+  #         - npm --version
+  #     jobs:
+  #       - name: Client Lint
+  #         commands:
+  #           - cd src/client
+  #           At this point we can assume 100% cache hit rate of node modules:
+  #           - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+
+  #           Run task as defined in package.json:
+  #           - npm run lint
+  #       - name: Server Lint
+  #         commands:
+  #           - cd src/server
+  #           - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+  #           - npm run lint
+
+  # - name: Test 
+  #   task:
+  #     env_vars:
+  #       - name: NODE_ENV
+  #         value: test
+  #       - name: CI
+  #         value: 'true'
+  #     prologue:
+  #       commands:
+  #         - checkout
+  #         - nvm use
+  #         - node --version
+  #         - npm --version
+  #     jobs:
+  #       - name: Client Tests
+  #         commands:
+  #           - cd src/client
+  #           - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+  #           - npm test
+  #       - name: Server Tests
+  #         commands:
+  #           - cd src/server
+  #           - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+  #           - npm test
+
+  # - name: E2e Tests
+  #   task:
+  #     env_vars:
+  #       - name: NODE_ENV
+  #         value: test
+  #       - name: CI
+  #         value: 'true'
+  #     prologue:
+  #       commands:
+  #         - checkout
+  #         - nvm use
+  #         - node --version
+  #         - npm --version
+  #         # Start a Postgres database. On Semaphore, databases run in the same
+  #         # environment as your code.
+  #         # See https://docs.semaphoreci.com/article/32-ubuntu-1804-image#databases-and-services
+  #         - sem-service start postgres
+  #         # With unrestricted sudo access, you can install any additional
+  #         # system package:
+  #         - sudo apt-get install -y libgtk2.0-0
+  #     jobs:
+  #       - name: Client Tests
+  #         commands:
+  #           - cd src/client
+  #           - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+  #           - npx cypress install
+  #           - npm run test:e2e
+  #       - name: Server Tests
+  #         commands:
+  #           - cd src/server
+  #           - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+  #           - cp ormconfig.ci.json ormconfig.json
+  #           - npm run migrate:up
+  #           - npm run test:e2e
+
+  - name: Test and lint
     task:
       env_vars:
         - name: NODE_ENV
@@ -78,85 +166,33 @@ blocks:
           value: 'true'
       prologue:
         commands:
-          - checkout
-          - nvm use
+          - nvm install 10
+          - sudo apt install libpq-dev
           - node --version
           - npm --version
       jobs:
-        - name: Client Lint
-          commands:
-            - cd src/client
-            # At this point we can assume 100% cache hit rate of node modules:
-            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-
-            # Run task as defined in package.json:
-            - npm run lint
-        - name: Server Lint
-          commands:
-            - cd src/server
-            - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-            - npm run lint
-
-  - name: Tests
-    task:
-      env_vars:
-        - name: NODE_ENV
-          value: test
-        - name: CI
-          value: 'true'
-      prologue:
+      - name: Client Lint
         commands:
-          - checkout
-          - nvm use
-          - node --version
-          - npm --version
-      jobs:
-        - name: Client Tests
-          commands:
-            - cd src/client
-            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - npm test
-        - name: Server Tests
-          commands:
-            - cd src/server
-            - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-            - npm test
-
-  - name: E2e Tests
-    task:
-      env_vars:
-        - name: NODE_ENV
-          value: test
-        - name: CI
-          value: 'true'
-      prologue:
+          - cd src/client
+      #  At this point we can assume 100% cache hit rate of node modules:
+          - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+      # Run task as defined in package.json:
+          - npm run lint
+      - name: Server Lint
         commands:
-          - checkout
-          - nvm use
-          - node --version
-          - npm --version
-          # Start a Postgres database. On Semaphore, databases run in the same
-          # environment as your code.
-          # See https://docs.semaphoreci.com/article/32-ubuntu-1804-image#databases-and-services
-          - sem-service start postgres
-          # With unrestricted sudo access, you can install any additional
-          # system package:
-          - sudo apt-get install -y libgtk2.0-0
-      jobs:
-        - name: Client Tests
-          commands:
-            - cd src/client
-            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - npx cypress install
-            - npm run test:e2e
-        - name: Server Tests
-          commands:
-            - cd src/server
-            - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-            - cp ormconfig.ci.json ormconfig.json
-            - npm run migrate:up
-            - npm run test:e2e
-
+          - cd src/server
+          - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+          - npm run lint
+      - name: Client Tests
+        commands:
+          - cd src/client
+          - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+          - npm test
+      - name: Server Tests
+        commands:
+          - cd src/server
+          - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
+          - npm test
 # If all tests pass, we move on to build a Docker image.
 # This is a job for a separate pipeline which we link with a promotion.
 #
@@ -167,12 +203,12 @@ blocks:
 # You may want to limit it by branch name, or trigger it manually.
 # For more on such options, see:
 # https://docs.semaphoreci.com/article/50-pipeline-yaml#promotions
-promotions:
-  - name: Dockerize server
-    pipeline_file: server-docker-build.yml
-    auto_promote_on:
-      - result: passed
-  - name: Deploy client
-    pipeline_file: client-deploy-build.yml
-    auto_promote_on:
-      - result: passed
+# promotions:
+#   - name: Dockerize server
+#     pipeline_file: server-docker-build.yml
+#     auto_promote_on:
+#       - result: passed
+#   - name: Deploy client
+#     pipeline_file: client-deploy-build.yml
+#     auto_promote_on:
+#       - result: passed
