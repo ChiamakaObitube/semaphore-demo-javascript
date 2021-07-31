@@ -180,12 +180,12 @@ blocks:
         #  At this point we can assume 100% cache hit rate of node modules:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
         # Run task as defined in package.json:
-            - npm lint
+            - npm run lint
         - name: Server Lint
           commands:
             - cd src/server
             - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-            - npm lint
+            - npm run lint
         - name: Client Tests
           commands:
             - cd src/client
