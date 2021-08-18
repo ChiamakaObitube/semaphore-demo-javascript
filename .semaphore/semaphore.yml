@@ -200,7 +200,7 @@ blocks:
           commands:
             - cd src/server
             - cache restore server-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package-lock.json),server-node-modules-$SEMAPHORE_GIT_BRANCH,server-node-modules-master
-            - npm test:coverage
+            - npm run test:coverage
 # If all tests pass, we move on to build a Docker image.
 # This is a job for a separate pipeline which we link with a promotion.
 #
